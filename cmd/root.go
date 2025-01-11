@@ -77,7 +77,7 @@ func (cfg TimeOffBuddyConfig) totalEarnedMinutesValid() bool {
 	return cfg.totalEarnedMinutes() >= 0
 }
 
-func (cfg TimeOffBuddyConfig) totalMinutesPerPayPeridValid() bool {
+func (cfg TimeOffBuddyConfig) totalMinutesPerPayPeriodValid() bool {
 	return cfg.totalMinutesPerPayPeriod() > 0
 }
 
@@ -89,7 +89,7 @@ func (cfg TimeOffBuddyConfig) whatIsInvalid() (err error) {
 
 	if !cfg.totalEarnedMinutesValid() {
 		err = fmt.Errorf("total earned minutes invalid: %v", cfg.totalEarnedMinutes())
-	} else if !cfg.totalMinutesPerPayPeridValid() {
+	} else if !cfg.totalMinutesPerPayPeriodValid() {
 		err = fmt.Errorf("total minutes per pay period invalid: %v", cfg.totalMinutesPerPayPeriod())
 	} else if !cfg.targetHoursInMinutesValid() {
 		err = fmt.Errorf("target hours invalid: %v", cfg.TargetHours)
@@ -101,7 +101,7 @@ func (cfg TimeOffBuddyConfig) whatIsInvalid() (err error) {
 
 func (cfg TimeOffBuddyConfig) validateConfig() (isValid bool) {
 	validEarnedMinutes := cfg.totalEarnedMinutesValid()
-	validMinutesPerPayPeriod := cfg.totalMinutesPerPayPeridValid()
+	validMinutesPerPayPeriod := cfg.totalMinutesPerPayPeriodValid()
 	validTargetMinutes := cfg.targetHoursInMinutesValid()
 	isValid = validEarnedMinutes && validMinutesPerPayPeriod && validTargetMinutes
 	return
