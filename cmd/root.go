@@ -23,6 +23,7 @@ package cmd
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 
@@ -77,7 +78,7 @@ func (cfg TimeOffBuddyConfig) totalEarnedMinutesValid() bool {
 	return cfg.totalEarnedMinutes() >= 0
 }
 
-func (cfg TimeOffBuddyConfig) totalMinutesPerPayPeriodValid() bool {
+func (cfg TimeOffBuddyConfig) totalMinutesPerPayPeridValid() bool {
 	return cfg.totalMinutesPerPayPeriod() > 0
 }
 
@@ -89,7 +90,7 @@ func (cfg TimeOffBuddyConfig) whatIsInvalid() (err error) {
 
 	if !cfg.totalEarnedMinutesValid() {
 		err = fmt.Errorf("total earned minutes invalid: %v", cfg.totalEarnedMinutes())
-	} else if !cfg.totalMinutesPerPayPeriodValid() {
+	} else if !cfg.totalMinutesPerPayPeridValid() {
 		err = fmt.Errorf("total minutes per pay period invalid: %v", cfg.totalMinutesPerPayPeriod())
 	} else if !cfg.targetHoursInMinutesValid() {
 		err = fmt.Errorf("target hours invalid: %v", cfg.TargetHours)
@@ -101,7 +102,7 @@ func (cfg TimeOffBuddyConfig) whatIsInvalid() (err error) {
 
 func (cfg TimeOffBuddyConfig) validateConfig() (isValid bool) {
 	validEarnedMinutes := cfg.totalEarnedMinutesValid()
-	validMinutesPerPayPeriod := cfg.totalMinutesPerPayPeriodValid()
+	validMinutesPerPayPeriod := cfg.totalMinutesPerPayPeridValid()
 	validTargetMinutes := cfg.targetHoursInMinutesValid()
 	isValid = validEarnedMinutes && validMinutesPerPayPeriod && validTargetMinutes
 	return
@@ -189,6 +190,8 @@ func executeTimeOffBuddy() (payPeriods int, err error) {
 		verboseOutput := cfg.Verbose
 		totalEarnedMinutes, minutesPerPayPeriod, targetHoursInMinutes := cfg.data()
 		payPeriods, err = determinePayPeriods(totalEarnedMinutes, minutesPerPayPeriod, targetHoursInMinutes, verboseOutput), nil
+	} else if cfg.totalMinutesPerPayPeriod() <= 0 {
+		payPeriods, err = math.MinInt, nil
 	} else {
 		payPeriods, err = -1, cfg.whatIsInvalid()
 	}
@@ -205,12 +208,14 @@ var rootCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if payPeriods, err := executeTimeOffBuddy(); err != nil {
 			return fmt.Errorf("failed to calculate pay periods: %v", err)
+		} else if payPeriods == math.MinInt {
+			fmt.Println("No Time Off Earned")
 		} else {
 			fmt.Printf("%v pay periods\n", payPeriods)
 		}
 		return nil
 	},
-	Version: "2.0.3",
+	Version: "2.1.0",
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
